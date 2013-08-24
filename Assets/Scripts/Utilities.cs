@@ -20,4 +20,21 @@ public class Utilities {
 		return Mathf.Clamp(angle, min, max);
 	}
 	
+	public static void ResetGameObject(GameObject GO) {
+		Transform t = GO.transform;
+		t.parent = null;
+		t.localPosition = Vector3.zero;
+		t.localRotation = Quaternion.identity;
+		t.localScale = Vector3.one;
+	}
+	
+	public static void SetLayerRecursive(GameObject GO, int layer) {
+		Transform t = GO.transform;
+		GO.layer = layer;
+		for (int i = 0; i < t.childCount; ++i)
+		{
+			SetLayerRecursive(t.GetChild(i).gameObject, layer);
+		}
+	}
+	
 }
