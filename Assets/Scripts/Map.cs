@@ -35,11 +35,14 @@ public class Map : MonoBehaviour {
 		handler = new MapHandler(200, 200, 45);
 		
 		StartCoroutine(SpawnMapRoutine());
+		
+		//TEMP
+		Screen.showCursor = false;
 	}
 	
 	GameObject CreateWall(int column, int row) {
 		GameObject newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
-		newGO.transform.localPosition = new Vector3(-handler.MapWidth / 2 + column, 0f, -handler.MapHeight / 2 + row);
+		newGO.transform.localPosition = new Vector3(-handler.MapWidth / 2 + column, 0f, handler.MapHeight / 2 - row);
 		MeshRenderer renderer = newGO.GetComponentInChildren<MeshRenderer>();
 		if (renderer != null) {
 			renderer.transform.localScale = new Vector3(1f, (int)Random.Range(7, 13), 1f);
@@ -85,10 +88,20 @@ public class Map : MonoBehaviour {
 			}
 			yield return null;
 			
+			// Minimap
 			newGO = (GameObject)Instantiate(newRow);
 			Utilities.ResetGameObject(newGO);
 			newGO.transform.parent = minimapAllWalls.transform;
 			Utilities.SetLayerRecursive(newGO, LayerMask.NameToLayer("Minimap"));
+			MeshRenderer renderer = newGO.GetComponent<MeshRenderer>();
+			if (renderer != null) {
+				renderer.castShadows = false;
+				renderer.receiveShadows = false;
+			}
+			collider = newGO.GetComponent<MeshCollider>();
+			if (collider != null) {
+				collider.enabled = false;
+			}
 			yield return null;
 		}
 	}
@@ -165,13 +178,10 @@ public class Map : MonoBehaviour {
 	 
 			int wallCounter = 0;
 	 
-			for(iY = startY; iY <= endY; iY++) {
-				for(iX = startX; iX <= endX; iX++)
-				{
-					if(!(iX==x && iY==y))
-					{
-						if(IsWall(iX,iY))
-						{
+			for (iY = startY; iY <= endY; ++iY) {
+				for (iX = startX; iX <= endX; ++iX) {
+					if (!(iX == x && iY == y)) {
+						if (IsWall(iX,iY)) {
 							wallCounter += 1;
 						}
 					}
@@ -180,46 +190,37 @@ public class Map : MonoBehaviour {
 			return wallCounter;
 		}
 	 
-		bool IsWall(int x,int y)
-		{
+		bool IsWall(int x,int y) {
 			// Consider out-of-bound a wall
-			if( IsOutOfBounds(x,y) )
-			{
+			if (IsOutOfBounds(x, y)) {
 				return true;
 			}
 	 
-			if( Map[x,y]==TILE_WALL	 )
-			{
+			if (Map[x, y] == TILE_WALL) {
 				return true;
 			}
 	 
-			if( Map[x,y]==TILE_FLOOR	 )
-			{
+			if (Map[x,y] == TILE_FLOOR) {
 				return false;
 			}
 			return false;
 		}
 	 
-		bool IsOutOfBounds(int x, int y)
-		{
-			if( x<0 || y<0 )
-			{
+		bool IsOutOfBounds(int x, int y) {
+			if (x < 0 || y < 0) {
 				return true;
 			}
-			else if( x>MapWidth-1 || y>MapHeight-1 )
-			{
+			else if (x > MapWidth - 1 || y > MapHeight - 1) {
 				return true;
 			}
 			return false;
 		}
 	 
-		public void PrintMap()
-		{
+		public void PrintMap() {
 			Logger.Log(MapToString());
 		}
 	 
-		string MapToString()
-		{
+		string MapToString() {
 			string returnString = string.Format("{0} {1} {2} {3} {4} {5} {6}", // Seperator between each element
 			                                  "Width:",
 			                                  MapWidth.ToString(),
@@ -227,17 +228,15 @@ public class Map : MonoBehaviour {
 			                                  MapHeight.ToString(),
 			                                  "\t% Walls:",
 			                                  PercentAreWalls.ToString(),
-			                                  "\n"
-			                                 );
+			                                  "\n");
 	 
 			List<string> mapSymbols = new List<string>();
-			mapSymbols.Add(".");
+			mapSymbols.Add("-");
 			mapSymbols.Add("#");
 			mapSymbols.Add("+");
 	 
-			for(int column=0,row=0; row < MapHeight; row++ ) {
-				for( column = 0; column < MapWidth; column++ )
-				{
+			for (int column = 0, row = 0; row < MapHeight; ++row) {
+				for (column = 0; column < MapWidth; ++column) {
 					returnString += mapSymbols[Map[column,row]];
 				}
 				returnString += "\n";
@@ -245,39 +244,33 @@ public class Map : MonoBehaviour {
 			return returnString;
 		}
 	 
-		public void BlankMap()
-		{
-			for(int column=0,row=0; row < MapHeight; row++) {
-				for(column = 0; column < MapWidth; column++) {
+		public void BlankMap() {
+			for (int column = 0, row = 0; row < MapHeight; ++row) {
+				for (column = 0; column < MapWidth; ++column) {
 					Map[column,row] = TILE_FLOOR;
 				}
 			}
 		}
 	 
-		public void RandomFillMap()
-		{
+		public void RandomFillMap() {
 			// New, empty map
 			Map = new int[MapWidth,MapHeight];
 	 
 			int mapMiddle = 0; // Temp variable
-			for(int column=0,row=0; row < MapHeight; row++) {
-				for(column = 0; column < MapWidth; column++)
+			for (int column = 0,row = 0; row < MapHeight; ++row) {
+				for (column = 0; column < MapWidth; ++column)
 				{
 					// If coordinants lie on the the edge of the map (creates a border)
-					if(column == 0)
-					{
+					if(column == 0) {
 						Map[column,row] = TILE_WALL;
 					}
-					else if (row == 0)
-					{
+					else if (row == 0) {
 						Map[column,row] = TILE_WALL;
 					}
-					else if (column == MapWidth-1)
-					{
+					else if (column == MapWidth-1) {
 						Map[column,row] = TILE_WALL;
 					}
-					else if (row == MapHeight-1)
-					{
+					else if (row == MapHeight-1) {
 						Map[column,row] = TILE_WALL;
 					}
 					// Else, fill with a wall a random percent of the time
@@ -285,12 +278,10 @@ public class Map : MonoBehaviour {
 					{
 						mapMiddle = (MapHeight / 2);
 	 
-						if(row == mapMiddle)
-						{
+						if (row == mapMiddle) {
 							Map[column,row] = TILE_FLOOR;
 						}
-						else
-						{
+						else {
 							Map[column,row] = RandomPercent(PercentAreWalls);
 						}
 					}
@@ -298,17 +289,14 @@ public class Map : MonoBehaviour {
 			}
 		}
 	 
-		int RandomPercent(int percent)
-		{
-			if(percent>=Random.Range(1,101))
-			{
+		int RandomPercent(int percent) {
+			if (percent >= Random.Range(1,101)) {
 				return TILE_WALL;
 			}
 			return TILE_FLOOR;
 		}
 	 
-		public MapHandler(int mapWidth, int mapHeight, int[,] map, int percentWalls=40)
-		{
+		public MapHandler(int mapWidth, int mapHeight, int[,] map, int percentWalls = 40) {
 			this.MapWidth = mapWidth;
 			this.MapHeight = mapHeight;
 			this.PercentAreWalls = percentWalls;
