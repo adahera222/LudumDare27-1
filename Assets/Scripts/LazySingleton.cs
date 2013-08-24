@@ -8,9 +8,9 @@ public class LazySingleton<T> : MonoBehaviour where T : Component {
 	public static T Instance {
 		get {
 			if (instance == null) {
-				GameObject GO = GameObject.Find(typeof(T).ToString ());
+				GameObject GO = GameObject.Find(typeof(T).ToString());
 				if (GO == null) {
-					GO = new GameObject(typeof(T).ToString ());
+					GO = new GameObject(typeof(T).ToString());
 				}
 				instance = GO.GetComponent<T>();
 			}
