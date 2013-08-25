@@ -8,6 +8,9 @@ public class UIManager : LazySingleton<UIManager> {
 	public GUIText scoreText;
 	public GUIText crosshair;
 	public GUIText gameOverText;
+	public GUIText gameOver2Text;
+	public GUITexture hurtOverlay;
+	
 	public Timer clockTimer;
 	
 	enum ClockState {
@@ -54,6 +57,9 @@ public class UIManager : LazySingleton<UIManager> {
 		else if (Input.GetKeyDown(KeyCode.F1)) {
 			Application.LoadLevel(0);
 		}
+		else if (Input.GetKeyDown(KeyCode.Space) && PlayerManager.Instance.CurPlayer.dead) {
+			Application.LoadLevel(0);
+		}
 	}
 		
 	void Countdown() {
@@ -75,6 +81,36 @@ public class UIManager : LazySingleton<UIManager> {
 	
 	void MapDespawn() {
 		Map.Instance.DespawnMap();
+	}
+	
+	public void ShowGameOver() {
+		gameOverText.gameObject.SetActive(true);
+		gameOver2Text.gameObject.SetActive(true);
+	}
+	
+	public void ShowHurtOverlay() {
+		StartCoroutine(ShowHurtOverlayRoutine());
+	}
+	
+	IEnumerator ShowHurtOverlayRoutine() {
+		hurtOverlay.color = new Color(hurtOverlay.color.r, hurtOverlay.color.g, hurtOverlay.color.b, 0f);
+		hurtOverlay.gameObject.SetActive(true);
+		
+		iTween.FadeTo(hurtOverlay.gameObject, new Hashtable() {
+			{ "alpha", 0.5f },
+			{ "time", 0.1f },
+			{ "easeType", iTween.EaseType.easeInExpo } } );
+		
+		yield return new WaitForSeconds(0.1f);
+		
+		iTween.FadeTo(hurtOverlay.gameObject, new Hashtable() {
+			{ "alpha", 0f },
+			{ "time", 0.1f },
+			{ "easeType", iTween.EaseType.easeInExpo } } );
+		
+		yield return new WaitForSeconds(0.1f);
+		
+		hurtOverlay.gameObject.SetActive(false);
 	}
 	
 }

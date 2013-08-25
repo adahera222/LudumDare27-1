@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour {
 	
+	public GameObject explosionFxPrefab;
+	
 	public Transform thisTransform;
 	public MeshRenderer thisRenderer;
 	public Rigidbody thisRigidbody;
@@ -81,6 +83,12 @@ public class Enemy : MonoBehaviour {
 		else if (collision.collider.tag == "Bullet") {
 			PlayerManager.Instance.CurPlayer.score += 10;
 			AudioSource.PlayClipAtPoint(explosionClip, thisTransform.position);
+			GameObject newGO = (GameObject)Instantiate(explosionFxPrefab, Vector3.zero, Quaternion.identity);
+			newGO.transform.position = thisTransform.position;
+			ParticleSystem system = newGO.GetComponent<ParticleSystem>();
+			if (system != null) {
+				system.renderer.material.color = thisRenderer.material.color;
+			}
 			Die();
 		}
 	}

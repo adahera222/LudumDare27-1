@@ -27,11 +27,12 @@ public class Player : MonoBehaviour {
 			Die();
 		}
 		
+		UIManager.Instance.ShowHurtOverlay();
 		AudioSource.PlayClipAtPoint(hurtClip, thisTransform.position);
 	}
 	
 	public void Die() {
-		UIManager.Instance.gameOverText.gameObject.SetActive(true);
+		UIManager.Instance.ShowGameOver();
 		thisMotor.canControl = false;
 		thisShoot.enabled = false;
 		dead = true;
