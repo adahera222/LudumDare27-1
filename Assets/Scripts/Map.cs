@@ -8,12 +8,12 @@ public class Map : LazySingleton<Map> {
 	public GameObject wallPrefab;
 	public GameObject floorPrefab;
 	
-	MapHandler handler;
+	public MapHandler handler;
 	
-	GameObject allWalls;
-	GameObject allFloors;
-	GameObject minimap;
-	GameObject minimapAllWalls;
+	public GameObject allWalls;
+	public GameObject allFloors;
+	public GameObject minimap;
+	public GameObject minimapAllWalls;
 
 	void Awake() {
 		allWalls = new GameObject("All Walls");
@@ -39,6 +39,12 @@ public class Map : LazySingleton<Map> {
 		newGO.transform.localScale = new Vector3(handler.MapWidth + 1, 1f, handler.MapHeight + 1);
 		newGO.transform.parent = allFloors.transform;
 		
+		newGO = (GameObject)Instantiate(floorPrefab, Vector3.zero, Quaternion.identity);
+		newGO.transform.localPosition = new Vector3(0f, 13f, 0f);
+		newGO.transform.localScale = new Vector3(handler.MapWidth + 1, 1f, handler.MapHeight + 1);
+		Utilities.SetLayerRecursive(newGO, LayerMask.NameToLayer("Hidden"));
+		newGO.transform.parent = allFloors.transform;
+		
 		// Boundary walls
 		MeshRenderer renderer;
 		newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
@@ -53,6 +59,7 @@ public class Map : LazySingleton<Map> {
 		else {
 			Logger.LogWarning("MeshRenderer is null");
 		}
+		renderer.gameObject.AddComponent<BoxCollider>();
 		
 		newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
 		Utilities.ResetGameObject(newGO);
@@ -66,6 +73,7 @@ public class Map : LazySingleton<Map> {
 		else {
 			Logger.LogWarning("MeshRenderer is null");
 		}
+		renderer.gameObject.AddComponent<BoxCollider>();
 		
 		newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
 		Utilities.ResetGameObject(newGO);
@@ -79,6 +87,7 @@ public class Map : LazySingleton<Map> {
 		else {
 			Logger.LogWarning("MeshRenderer is null");
 		}
+		renderer.gameObject.AddComponent<BoxCollider>();
 		
 		newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
 		Utilities.ResetGameObject(newGO);
@@ -92,6 +101,7 @@ public class Map : LazySingleton<Map> {
 		else {
 			Logger.LogWarning("MeshRenderer is null");
 		}
+		renderer.gameObject.AddComponent<BoxCollider>();
 	}
 	
 	GameObject CreateWall(int column, int row) {
@@ -166,6 +176,10 @@ public class Map : LazySingleton<Map> {
 	
 	public void DestroyRow(object row) {
 		Transform t = allWalls.transform.FindChild("Row " + row);
+		MeshFilter filter = t.GetComponent<MeshFilter>();
+		if (filter != null) {
+			Destroy(filter.mesh);
+		}
 		GameObject.Destroy(t.gameObject);
 	}
 	
@@ -186,6 +200,10 @@ public class Map : LazySingleton<Map> {
 		yield return null;
 		
 		GO = minimapAllWalls.transform.GetChild(0).gameObject;
+		MeshFilter filter = GO.GetComponent<MeshFilter>();
+		if (filter != null) {
+			Destroy(filter.mesh);
+		}
 		GameObject.Destroy(GO);
 		
 		yield return null;
@@ -211,6 +229,7 @@ public class Map : LazySingleton<Map> {
 		for (int row = 0; row < handler.MapHeight; ++row) {
 			yield return StartCoroutine(DespawnRowRoutine(row));
 		}
+		System.GC.Collect();
 	}
 	
 	IEnumerator GenerationRoutine(int generations = 1) {

@@ -6,6 +6,7 @@ public class Projectile : MonoBehaviour {
 	public Transform thisTransform;
 	public Rigidbody thisRigidbody;
 	public Collider thisCollider;
+	public MeshRenderer thisRenderer;
 	
 	public Vector3 velocity;
 	public Vector3 acceleration;
@@ -13,6 +14,7 @@ public class Projectile : MonoBehaviour {
 	
 	void Awake() {
 		ProjectileManager.Instance.AddProjectile(this);
+		thisRenderer.material.color = Color.yellow;
 	}
 	
 	public void Do() {

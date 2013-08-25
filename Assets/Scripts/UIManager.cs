@@ -2,8 +2,10 @@
 using System.Collections;
 
 public class UIManager : LazySingleton<UIManager> {
-
-	public GUIText clock;
+	
+	public GUIText healthText;
+	public GUIText clockText;
+	public GUIText gameOverText;
 	public Timer clockTimer;
 	
 	enum ClockState {
@@ -39,10 +41,16 @@ public class UIManager : LazySingleton<UIManager> {
 	}
 	
 	void FixedUpdate() {
-		clock.text = string.Format("{0}:{1:00}", Mathf.FloorToInt(clockTimer.CurTime), (clockTimer.CurTime - Mathf.FloorToInt(clockTimer.CurTime)) * 100f);
+		healthText.text = string.Format("{0}", Mathf.FloorToInt(PlayerManager.Instance.CurPlayer.health));
+		clockText.text = string.Format("{0}:{1:00}", Mathf.FloorToInt(clockTimer.CurTime), (clockTimer.CurTime - Mathf.FloorToInt(clockTimer.CurTime)) * 100f);
 	}
 		
 	void Countdown() {
+		int numEnemies = Random.Range(1, 10);
+		for (int i = 0; i < numEnemies; ++i) {
+			EnemyManager.Instance.SpawnEnemy();
+		}
+		
 		clockTimer.SetCountdown(10f, delegate() {
 			clockMachine.MoveNext((int)ClockCommand.NEXT);
 			Countdown();
