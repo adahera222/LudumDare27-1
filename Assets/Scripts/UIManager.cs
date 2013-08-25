@@ -5,6 +5,8 @@ public class UIManager : LazySingleton<UIManager> {
 	
 	public GUIText healthText;
 	public GUIText clockText;
+	public GUIText scoreText;
+	public GUIText crosshair;
 	public GUIText gameOverText;
 	public Timer clockTimer;
 	
@@ -43,6 +45,7 @@ public class UIManager : LazySingleton<UIManager> {
 	
 	void FixedUpdate() {
 		healthText.text = string.Format("{0}", Mathf.FloorToInt(PlayerManager.Instance.CurPlayer.health));
+		scoreText.text = string.Format("{0}", Mathf.FloorToInt(PlayerManager.Instance.CurPlayer.score));
 		clockText.text = string.Format("{0}:{1:00}", Mathf.FloorToInt(clockTimer.CurTime), (clockTimer.CurTime - Mathf.FloorToInt(clockTimer.CurTime)) * 100f);
 		
 		if (Input.GetKeyDown(KeyCode.Escape)) {

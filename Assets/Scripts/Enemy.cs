@@ -79,6 +79,7 @@ public class Enemy : MonoBehaviour {
 			Die();
 		}
 		else if (collision.collider.tag == "Bullet") {
+			PlayerManager.Instance.CurPlayer.score += 10;
 			AudioSource.PlayClipAtPoint(explosionClip, thisTransform.position);
 			Die();
 		}

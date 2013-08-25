@@ -13,10 +13,12 @@ public class Player : MonoBehaviour {
 	
 	public float health;
 	public bool dead;
+	public float score;
 	
 	void Awake() {
 		dead = false;
 		health = 100f;
+		score = 0f;
 	}
 	
 	public void DealDamage(float damage) {
