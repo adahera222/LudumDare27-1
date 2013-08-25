@@ -20,7 +20,7 @@ public class Enemy : MonoBehaviour {
 	
 	void Awake() {
 		thisRenderer.material.color = new Color((float)Random.Range(0f, 1f), (float)Random.Range(0f, 1f), (float)Random.Range(0f, 1f));
-		aiType = (AIType)Random.Range((int)AIType.RANDOM, (int)AIType.RANDOM_AGGRESSIVE);
+		aiType = (AIType)Random.Range((int)AIType.RANDOM, (int)AIType.RANDOM_AGGRESSIVE + 1);
 	}
 	
 	void FixedUpdate() {
@@ -39,12 +39,12 @@ public class Enemy : MonoBehaviour {
 		if (player != null) {
 			Vector3 dirToPlayer = player.thisTransform.position - thisTransform.position;
 			bool doMove = false;
-			if (dirToPlayer.magnitude < 20f) {
+			if (dirToPlayer.magnitude < 10f) {
 				doMove = true;
 			}
 			else {
 				int result = Random.Range(0, 100);
-				if (result < 50) {
+				if (result < 25) {
 					doMove = true;
 				}
 				else {

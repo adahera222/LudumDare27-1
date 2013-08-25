@@ -14,6 +14,9 @@ public class Map : LazySingleton<Map> {
 	public GameObject allFloors;
 	public GameObject minimap;
 	public GameObject minimapAllWalls;
+	
+	public AudioClip pillarLandClip;
+	public AudioClip pillarRemoveClip;
 
 	void Awake() {
 		allWalls = new GameObject("All Walls");
@@ -171,7 +174,26 @@ public class Map : LazySingleton<Map> {
 		iTween.MoveTo(newRow, new Hashtable() {
 			{ "position", Vector3.zero },
 			{ "time", 1f },
-			{ "easeType", iTween.EaseType.easeInExpo } });
+			{ "easeType", iTween.EaseType.easeInExpo },
+			{ "onComplete", "PlayPillarLandSound" },
+			{ "onCompleteTarget", gameObject },
+			{ "onCompleteParams", row } });
+	}
+	
+	public void PlayPillarLandSound(int row) {
+		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(0f, 0f, handler.MapHeight / 2 - row));
+		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(-handler.MapWidth / 4, 0f, handler.MapHeight / 2 - row));
+		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(-handler.MapWidth / 2, 0f, handler.MapHeight / 2 - row));
+		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(handler.MapWidth / 4, 0f, handler.MapHeight / 2 - row));
+		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(handler.MapWidth / 2, 0f, handler.MapHeight / 2 - row));
+	}
+	
+	public void PlayPillarRemoveSound(int row) {
+		AudioSource.PlayClipAtPoint(pillarRemoveClip, new Vector3(0f, 0f, handler.MapHeight / 2 - row));
+		AudioSource.PlayClipAtPoint(pillarRemoveClip, new Vector3(-handler.MapWidth / 4, 0f, handler.MapHeight / 2 - row));
+		AudioSource.PlayClipAtPoint(pillarRemoveClip, new Vector3(-handler.MapWidth / 2, 0f, handler.MapHeight / 2 - row));
+		AudioSource.PlayClipAtPoint(pillarRemoveClip, new Vector3(handler.MapWidth / 4, 0f, handler.MapHeight / 2 - row));
+		AudioSource.PlayClipAtPoint(pillarRemoveClip, new Vector3(handler.MapWidth / 2, 0f, handler.MapHeight / 2 - row));
 	}
 	
 	public void DestroyRow(object row) {
@@ -196,6 +218,8 @@ public class Map : LazySingleton<Map> {
 			{ "onComplete", "DestroyRow" },
 			{ "onCompleteTarget", gameObject },
 			{ "onCompleteParams", row } });
+		
+		PlayPillarRemoveSound(row);
 		
 		yield return null;
 		
