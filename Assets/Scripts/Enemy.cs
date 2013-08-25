@@ -7,6 +7,8 @@ public class Enemy : MonoBehaviour {
 	public MeshRenderer thisRenderer;
 	public Rigidbody thisRigidbody;
 	
+	public AudioClip explosionClip;
+	
 	public enum AIType {
 		RANDOM,
 		PASSIVE,
@@ -31,19 +33,38 @@ public class Enemy : MonoBehaviour {
 			thisTransform.position = new Vector3((float)Random.Range(-(mapWidth - 1) / 2, (mapWidth - 1) / 2), (float)Random.Range(1f, 12f), (float)Random.Range(-(mapHeight - 1) / 2, (mapHeight - 1) / 2));
 			return;
 		}
-		if (aiType == AIType.RANDOM || aiType == AIType.RANDOM_PASSIVE || aiType == AIType.RANDOM_AGGRESSIVE) {
-			thisRigidbody.AddForce(new Vector3((float)Random.Range(-50f, 50f), (float)Random.Range(-50f, 50f), (float)Random.Range(-50f, 50f)));
-		}
+		
 		Player player = PlayerManager.Instance.CurPlayer;
+		bool doRandom = false;
 		if (player != null) {
 			Vector3 dirToPlayer = player.thisTransform.position - thisTransform.position;
-			dirToPlayer = dirToPlayer.normalized;
-			if (aiType == AIType.PASSIVE || aiType == AIType.RANDOM_PASSIVE) {
-				thisRigidbody.AddForce(dirToPlayer * -1 * (float)Random.Range(10f, 50f));
+			bool doMove = false;
+			if (dirToPlayer.magnitude < 20f) {
+				doMove = true;
 			}
-			if (aiType == AIType.AGGRESSIVE || aiType == AIType.RANDOM_AGGRESSIVE) {
-				thisRigidbody.AddForce(dirToPlayer * (float)Random.Range(10f, 50f));
+			else {
+				int result = Random.Range(0, 100);
+				if (result < 50) {
+					doMove = true;
+				}
+				else {
+					doRandom = true;
+				}
 			}
+			
+			if (doMove) {
+				dirToPlayer = dirToPlayer.normalized;
+				if (aiType == AIType.PASSIVE || aiType == AIType.RANDOM_PASSIVE) {
+					thisRigidbody.AddForce(dirToPlayer * -1 * (float)Random.Range(10f, 50f));
+				}
+				if (aiType == AIType.AGGRESSIVE || aiType == AIType.RANDOM_AGGRESSIVE) {
+					thisRigidbody.AddForce(dirToPlayer * (float)Random.Range(10f, 50f));
+				}
+			}
+		}
+		
+		if (doRandom || aiType == AIType.RANDOM || aiType == AIType.RANDOM_PASSIVE || aiType == AIType.RANDOM_AGGRESSIVE) {
+			thisRigidbody.AddForce(new Vector3((float)Random.Range(-50f, 50f), (float)Random.Range(-50f, 50f), (float)Random.Range(-50f, 50f)));
 		}
 	}
 	
@@ -58,6 +79,7 @@ public class Enemy : MonoBehaviour {
 			Die();
 		}
 		else if (collision.collider.tag == "Bullet") {
+			AudioSource.PlayClipAtPoint(explosionClip, thisTransform.position);
 			Die();
 		}
 	}

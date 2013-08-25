@@ -301,6 +301,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 100002, guid: 1dede81a3536c6f4895c39015264120f, type: 2}
   projectileRoot: {fileID: 1817311558}
+  laserClip: {fileID: 8300000, guid: 078b332c0a9aa59448bfed7b03af6f7f, type: 3}
   cooldown: .100000001
   cooldownTimer: 0
   projectileForce: 5000
@@ -320,7 +321,10 @@ MonoBehaviour:
   thisCollider: {fileID: 137850902}
   thisController: {fileID: 137850902}
   thisMotor: {fileID: 137850900}
+  thisShoot: {fileID: 137850903}
+  hurtClip: {fileID: 8300000, guid: 9fb7215978a2069458ee7b1f705f0324, type: 3}
   health: 0
+  dead: 0
 --- !u!1 &212741870
 GameObject:
   m_ObjectHideFlags: 0

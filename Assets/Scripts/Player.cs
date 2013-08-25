@@ -7,10 +7,15 @@ public class Player : MonoBehaviour {
 	public Collider thisCollider;
 	public CharacterController thisController;
 	public CharacterMotor thisMotor;
+	public Shoot thisShoot;
+	
+	public AudioClip hurtClip;
 	
 	public float health;
+	public bool dead;
 	
 	void Awake() {
+		dead = false;
 		health = 100f;
 	}
 	
@@ -19,11 +24,15 @@ public class Player : MonoBehaviour {
 		if (health <= 0f) {
 			Die();
 		}
+		
+		AudioSource.PlayClipAtPoint(hurtClip, thisTransform.position);
 	}
 	
 	public void Die() {
 		UIManager.Instance.gameOverText.gameObject.SetActive(true);
 		thisMotor.canControl = false;
+		thisShoot.enabled = false;
+		dead = true;
 	}
 	
 }

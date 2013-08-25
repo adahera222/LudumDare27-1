@@ -21,6 +21,7 @@ public class UIManager : LazySingleton<UIManager> {
 	
 	void Awake() {
 		Screen.showCursor = false;
+		Screen.lockCursor = true;
 		
 		foreach (var value in System.Enum.GetValues(typeof(ClockState))) {
 			clockMachine.AddState((int)value);
@@ -43,6 +44,13 @@ public class UIManager : LazySingleton<UIManager> {
 	void FixedUpdate() {
 		healthText.text = string.Format("{0}", Mathf.FloorToInt(PlayerManager.Instance.CurPlayer.health));
 		clockText.text = string.Format("{0}:{1:00}", Mathf.FloorToInt(clockTimer.CurTime), (clockTimer.CurTime - Mathf.FloorToInt(clockTimer.CurTime)) * 100f);
+		
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			Application.Quit();
+		}
+		else if (Input.GetKeyDown(KeyCode.F1)) {
+			Application.LoadLevel(0);
+		}
 	}
 		
 	void Countdown() {

@@ -124,6 +124,7 @@ MonoBehaviour:
   thisTransform: {fileID: 400002}
   thisRenderer: {fileID: 2300000}
   thisRigidbody: {fileID: 5400000}
+  explosionClip: {fileID: 8300000, guid: 5a8f79bc529d60a46be17238b89debed, type: 3}
   aiType: 0
 --- !u!1001 &100100000
 Prefab:

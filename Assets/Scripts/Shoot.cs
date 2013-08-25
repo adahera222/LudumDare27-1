@@ -6,6 +6,7 @@ public class Shoot : MonoBehaviour {
 	public GameObject projectilePrefab;
 	
 	public Transform projectileRoot;
+	public AudioClip laserClip;
 	
 	public float cooldown = 1f;
 	public float cooldownTimer;
@@ -34,6 +35,7 @@ public class Shoot : MonoBehaviour {
 			projectile.life = projectileLife;
 			projectile.thisRigidbody.AddForce(projectile.thisTransform.forward * projectileForce);
 			Physics.IgnoreCollision(projectile.thisCollider, collider);
+			AudioSource.PlayClipAtPoint(laserClip, projectile.thisTransform.position, 0.25f);
 		}
 	}
 	
