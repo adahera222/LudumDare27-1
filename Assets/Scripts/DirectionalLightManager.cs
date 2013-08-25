@@ -22,7 +22,6 @@ public class DirectionalLightManager : MonoBehaviour {
 	}
 	
 	void Countdown() {
-		timer = gameObject.GetComponent<Timer>();
 		if (timer == null) {
 			timer = gameObject.AddComponent<Timer>();
 		}

@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Map : MonoBehaviour {
+public class Map : LazySingleton<Map> {
 	
+	public Transform thisTransform;
 	public GameObject wallPrefab;
 	public GameObject floorPrefab;
 	
@@ -14,8 +15,7 @@ public class Map : MonoBehaviour {
 	GameObject minimap;
 	GameObject minimapAllWalls;
 
-	// Use this for initialization
-	void Start () {
+	void Awake() {
 		allWalls = new GameObject("All Walls");
 		Utilities.ResetGameObject(allWalls);
 		allWalls.transform.parent = transform;
@@ -34,14 +34,69 @@ public class Map : MonoBehaviour {
 		
 		handler = new MapHandler(200, 200, 45);
 		
-		StartCoroutine(SpawnMapRoutine());
+		// Floor
+		GameObject newGO = (GameObject)Instantiate(floorPrefab, Vector3.zero, Quaternion.identity);
+		newGO.transform.localScale = new Vector3(handler.MapWidth + 1, 1f, handler.MapHeight + 1);
+		newGO.transform.parent = allFloors.transform;
 		
-		//TEMP
-		Screen.showCursor = false;
+		// Boundary walls
+		MeshRenderer renderer;
+		newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
+		Utilities.ResetGameObject(newGO);
+		newGO.transform.parent = thisTransform;
+		newGO.transform.localPosition = new Vector3(0f, 0f, (-handler.MapHeight - 1) / 2);
+		renderer = newGO.GetComponentInChildren<MeshRenderer>();
+		if (renderer != null) {
+			renderer.transform.localScale = new Vector3(handler.MapWidth + 1, 13f, 1f);
+			renderer.transform.localPosition = new Vector3(0f, renderer.transform.localScale.y / 2, 0f);
+		}
+		else {
+			Logger.LogWarning("MeshRenderer is null");
+		}
+		
+		newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
+		Utilities.ResetGameObject(newGO);
+		newGO.transform.parent = thisTransform;
+		newGO.transform.localPosition = new Vector3(0f, 0f, (handler.MapHeight + 1) / 2);
+		renderer = newGO.GetComponentInChildren<MeshRenderer>();
+		if (renderer != null) {
+			renderer.transform.localScale = new Vector3(handler.MapWidth + 1, 13f, 1f);
+			renderer.transform.localPosition = new Vector3(0f, renderer.transform.localScale.y / 2, 0f);
+		}
+		else {
+			Logger.LogWarning("MeshRenderer is null");
+		}
+		
+		newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
+		Utilities.ResetGameObject(newGO);
+		newGO.transform.parent = thisTransform;
+		newGO.transform.localPosition = new Vector3((-handler.MapWidth - 1) / 2, 0f, 0f);
+		renderer = newGO.GetComponentInChildren<MeshRenderer>();
+		if (renderer != null) {
+			renderer.transform.localScale = new Vector3(1f, 13f, handler.MapHeight + 1);
+			renderer.transform.localPosition = new Vector3(0f, renderer.transform.localScale.y / 2, 0f);
+		}
+		else {
+			Logger.LogWarning("MeshRenderer is null");
+		}
+		
+		newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
+		Utilities.ResetGameObject(newGO);
+		newGO.transform.parent = thisTransform;
+		newGO.transform.localPosition = new Vector3((handler.MapWidth + 1) / 2, 0f, 0f);
+		renderer = newGO.GetComponentInChildren<MeshRenderer>();
+		if (renderer != null) {
+			renderer.transform.localScale = new Vector3(1f, 13f, handler.MapHeight + 1);
+			renderer.transform.localPosition = new Vector3(0f, renderer.transform.localScale.y / 2, 0f);
+		}
+		else {
+			Logger.LogWarning("MeshRenderer is null");
+		}
 	}
 	
 	GameObject CreateWall(int column, int row) {
 		GameObject newGO = (GameObject)Instantiate(wallPrefab, Vector3.zero, Quaternion.identity);
+		Utilities.ResetGameObject(newGO);
 		newGO.transform.localPosition = new Vector3(-handler.MapWidth / 2 + column, 0f, handler.MapHeight / 2 - row);
 		MeshRenderer renderer = newGO.GetComponentInChildren<MeshRenderer>();
 		if (renderer != null) {
@@ -51,58 +106,110 @@ public class Map : MonoBehaviour {
 		else {
 			Logger.LogWarning("MeshRenderer is null");
 		}
+		
 		return newGO;
 	}
 	
-	IEnumerator SpawnMapRoutine() {
+	IEnumerator SpawnRowRoutine(int row) {
 		GameObject newGO;
+		GameObject newRow = new GameObject("Row " + row);
+		Utilities.ResetGameObject(newRow);
+		newRow.transform.parent = allWalls.transform;
 		
+		for (int column = 0; column < handler.MapWidth; ++column) {
+			if (handler.Map[column, row] == MapHandler.TILE_WALL) {
+				newGO = CreateWall(column, row);
+				newGO.transform.parent = newRow.transform;
+			}
+		}
+		
+		Utilities.SetLayerRecursive(newRow, LayerMask.NameToLayer("Hidden"));
+		
+		newRow.AddComponent<CombineChildren>();
+		yield return null;
+		
+		MeshCollider collider = newRow.AddComponent<MeshCollider>();
+		MeshFilter filter = newRow.GetComponent<MeshFilter>();
+		if (filter != null) {
+			collider.sharedMesh = filter.mesh;
+		}
+		else {
+			Logger.LogWarning("MeshFilter is null");
+		}
+		yield return null;
+		
+		// Minimap
+		newGO = (GameObject)Instantiate(newRow);
+		Utilities.ResetGameObject(newGO);
+		newGO.transform.parent = minimapAllWalls.transform;
+		Utilities.SetLayerRecursive(newGO, LayerMask.NameToLayer("Minimap"));
+		MeshRenderer renderer = newGO.GetComponent<MeshRenderer>();
+		if (renderer != null) {
+			renderer.castShadows = false;
+			renderer.receiveShadows = false;
+		}
+		collider = newGO.GetComponent<MeshCollider>();
+		if (collider != null) {
+			collider.enabled = false;
+		}
+		
+		yield return null;
+		
+		Utilities.SetLayerRecursive(newRow, LayerMask.NameToLayer("Default"));
+		
+		newRow.transform.localPosition = new Vector3(0f, 10f, 0f);
+		iTween.MoveTo(newRow, new Hashtable() {
+			{ "position", Vector3.zero },
+			{ "time", 1f },
+			{ "easeType", iTween.EaseType.easeInExpo } });
+	}
+	
+	public void DestroyRow(object row) {
+		Transform t = allWalls.transform.FindChild("Row " + row);
+		GameObject.Destroy(t.gameObject);
+	}
+	
+	IEnumerator DespawnRowRoutine(int row) {
+		Transform t = allWalls.transform.FindChild("Row " + row);
+		if (t == null) {
+			yield break;
+		}
+		GameObject GO = t.gameObject;
+		iTween.MoveTo(GO, new Hashtable() {
+			{ "position", new Vector3(0f, -20f, 0f) },
+			{ "time", 1f },
+			{ "easeType", iTween.EaseType.easeOutExpo },
+			{ "onComplete", "DestroyRow" },
+			{ "onCompleteTarget", gameObject },
+			{ "onCompleteParams", row } });
+		
+		yield return null;
+		
+		GO = minimapAllWalls.transform.GetChild(0).gameObject;
+		GameObject.Destroy(GO);
+		
+		yield return null;
+	}
+	
+	public void SpawnMap() {
+		StartCoroutine(SpawnMapRoutine());
+	}
+	
+	IEnumerator SpawnMapRoutine() {
 		yield return StartCoroutine(GenerationRoutine(3));
 		
-		newGO = (GameObject)Instantiate(floorPrefab, Vector3.zero, Quaternion.identity);
-		newGO.transform.localScale = new Vector3(handler.MapWidth, 1f, handler.MapHeight);
-		newGO.transform.parent = allFloors.transform;
-		
-		for (int column = 0, row = 0; row < handler.MapHeight; ++row) {
-			GameObject newRow = new GameObject("Row " + row);
-			Utilities.ResetGameObject(newRow);
-			newRow.transform.parent = allWalls.transform;
-			
-			for (column = 0; column < handler.MapWidth; ++column) {
-				if (handler.Map[column, row] == MapHandler.TILE_WALL) {
-					newGO = CreateWall(column, row);
-					newGO.transform.parent = newRow.transform;
-				}
-			}
-			
-			newRow.AddComponent<CombineChildren>();
-			yield return null;
-			
-			MeshCollider collider = newRow.AddComponent<MeshCollider>();
-			MeshFilter filter = newRow.GetComponent<MeshFilter>();
-			if (filter != null) {
-				collider.sharedMesh = filter.mesh;
-			}
-			else {
-				Logger.LogWarning("MeshFilter is null");
-			}
-			yield return null;
-			
-			// Minimap
-			newGO = (GameObject)Instantiate(newRow);
-			Utilities.ResetGameObject(newGO);
-			newGO.transform.parent = minimapAllWalls.transform;
-			Utilities.SetLayerRecursive(newGO, LayerMask.NameToLayer("Minimap"));
-			MeshRenderer renderer = newGO.GetComponent<MeshRenderer>();
-			if (renderer != null) {
-				renderer.castShadows = false;
-				renderer.receiveShadows = false;
-			}
-			collider = newGO.GetComponent<MeshCollider>();
-			if (collider != null) {
-				collider.enabled = false;
-			}
-			yield return null;
+		for (int row = 0; row < handler.MapHeight; ++row) {
+			yield return StartCoroutine(SpawnRowRoutine(row));
+		}
+	}
+	
+	public void DespawnMap() {
+		StartCoroutine(DespawnMapRoutine());
+	}
+	
+	IEnumerator DespawnMapRoutine() {
+		for (int row = 0; row < handler.MapHeight; ++row) {
+			yield return StartCoroutine(DespawnRowRoutine(row));
 		}
 	}
 	
