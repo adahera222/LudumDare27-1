@@ -110,7 +110,7 @@ public class FiniteStateMachine {
 		
 		if (searchFirstState) {
 			IEnumerator e = states.Keys.GetEnumerator();
-			e.MoveNext ();
+			e.MoveNext();
 			state = (int)e.Current;
 		}
 		
