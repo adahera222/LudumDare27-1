@@ -25,10 +25,10 @@ public class Timer : MonoBehaviour {
 			else if (Type == TimerType.Countdown) {
 				CurTime -= Time.fixedDeltaTime;
 				if (CurTime <= 0f) {
+					Stop();
 					if (callback != null) {
 						callback();
 					}
-					Stop();
 				}
 			}
 		}
