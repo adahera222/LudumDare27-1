@@ -41,12 +41,16 @@ public class Enemy : MonoBehaviour {
 		if (player != null) {
 			Vector3 dirToPlayer = player.thisTransform.position - thisTransform.position;
 			bool doMove = false;
-			if (dirToPlayer.magnitude < 10f) {
+			float distanceCheck = 10f;
+			if (aiType == AIType.PASSIVE || aiType == AIType.RANDOM_PASSIVE) {
+				distanceCheck = 5f;
+			}
+			if (dirToPlayer.magnitude < distanceCheck) {
 				doMove = true;
 			}
 			else {
 				int result = Random.Range(0, 100);
-				if (result < 25) {
+				if (result < 10) {
 					doMove = true;
 				}
 				else {
