@@ -772,6 +772,7 @@ MonoBehaviour:
   thisTransform: {fileID: 679776203}
   wallPrefab: {fileID: 100002, guid: 1cbe00bcc599b61489fa689c82759462, type: 2}
   floorPrefab: {fileID: 100000, guid: 8edd07ab1ad4767488ae6f62d8037919, type: 2}
+  killZonePrefab: {fileID: 100000, guid: a70373a146a387249bd9d6db6131f65d, type: 2}
   allWalls: {fileID: 0}
   allFloors: {fileID: 0}
   minimap: {fileID: 0}

@@ -7,6 +7,7 @@ public class Map : LazySingleton<Map> {
 	public Transform thisTransform;
 	public GameObject wallPrefab;
 	public GameObject floorPrefab;
+	public GameObject killZonePrefab;
 	
 	public MapHandler handler;
 	
@@ -175,20 +176,43 @@ public class Map : LazySingleton<Map> {
 			{ "position", Vector3.zero },
 			{ "time", 1f },
 			{ "easeType", iTween.EaseType.easeInExpo },
-			{ "onComplete", "PlayPillarLandSound" },
+			{ "onComplete", "OnRowLand" },
 			{ "onCompleteTarget", gameObject },
 			{ "onCompleteParams", row } });
+		
+		HashSet<GameObject> killzones = new HashSet<GameObject>();
+		for (int i = 0; i < newRow.transform.childCount; ++i) {
+			newGO = (GameObject)Instantiate(killZonePrefab, Vector3.zero, Quaternion.identity);
+			Transform child = newRow.transform.GetChild(i);
+			newGO.transform.localPosition = new Vector3(child.localPosition.x, 0, child.localPosition.z);
+			killzones.Add(newGO);
+		}
+		
+		IEnumerator e = killzones.GetEnumerator();
+		while (e.MoveNext()) {
+			newGO = (GameObject)e.Current;
+			newGO.transform.parent = newRow.transform;
+			newGO.transform.localPosition = new Vector3(newGO.transform.localPosition.x, -0.5f, newGO.transform.localPosition.z);
+		}
+		
 	}
 	
-	public void PlayPillarLandSound(int row) {
+	public void OnRowLand(int row) {
 		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(0f, 0f, handler.MapHeight / 2 - row));
 		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(-handler.MapWidth / 4, 0f, handler.MapHeight / 2 - row));
 		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(-handler.MapWidth / 2, 0f, handler.MapHeight / 2 - row));
 		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(handler.MapWidth / 4, 0f, handler.MapHeight / 2 - row));
 		AudioSource.PlayClipAtPoint(pillarLandClip, new Vector3(handler.MapWidth / 2, 0f, handler.MapHeight / 2 - row));
+		
+		Transform t = allWalls.transform.FindChild("Row " + row);
+		for (int i = 0; i < t.childCount; ++i) {
+			if (t.GetChild(i).tag == "KillZone") {
+				GameObject.Destroy(t.GetChild(i).gameObject);
+			}
+		}
 	}
 	
-	public void PlayPillarRemoveSound(int row) {
+	public void OnPillarRemove(int row) {
 		AudioSource.PlayClipAtPoint(pillarRemoveClip, new Vector3(0f, 0f, handler.MapHeight / 2 - row));
 		AudioSource.PlayClipAtPoint(pillarRemoveClip, new Vector3(-handler.MapWidth / 4, 0f, handler.MapHeight / 2 - row));
 		AudioSource.PlayClipAtPoint(pillarRemoveClip, new Vector3(-handler.MapWidth / 2, 0f, handler.MapHeight / 2 - row));
@@ -219,7 +243,7 @@ public class Map : LazySingleton<Map> {
 			{ "onCompleteTarget", gameObject },
 			{ "onCompleteParams", row } });
 		
-		PlayPillarRemoveSound(row);
+		OnPillarRemove(row);
 		
 		yield return null;
 		
