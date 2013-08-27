@@ -118,14 +118,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 100002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e52c1bc610e9e14999fa5dc5f1b366f, type: 3}
+  m_Script: {fileID: 11500000, guid: 96f7ea17a5d1a9c4ba1fbf06f2c6b161, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionFxPrefab: {fileID: 100000, guid: 4f44b5d13eabfeb47a790305b92f0c2d, type: 2}
+  explosionFxPrefab: {fileID: 100000, guid: 3e679c957373ad34ea8b8ee17a82fbdc, type: 2}
   thisTransform: {fileID: 400002}
   thisRenderer: {fileID: 2300000}
   thisRigidbody: {fileID: 5400000}
-  explosionClip: {fileID: 8300000, guid: 5a8f79bc529d60a46be17238b89debed, type: 3}
+  explosionClip: {fileID: 8300000, guid: 37d16c69568fde346aed58b551484f79, type: 3}
   aiType: 0
 --- !u!1001 &100100000
 Prefab:
